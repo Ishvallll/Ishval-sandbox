@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Meteor Engine FINAL</title>
+<title>Meteor Engine STABLE</title>
 
 <style>
     body {
@@ -16,6 +16,7 @@
         position: absolute;
         pointer-events: none;
         transform: translate(-50%, -50%);
+        opacity: 1;
     }
 
     .meteor {
@@ -48,12 +49,12 @@
 <script>
 /* ================= AUDIO ================= */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let boomBuffer;
+let boomBuffer = null;
 
 fetch("brick1.ogg")
-  .then(r => r.arrayBuffer())
-  .then(b => audioCtx.decodeAudioData(b))
-  .then(buf => boomBuffer = buf);
+    .then(r => r.arrayBuffer())
+    .then(b => audioCtx.decodeAudioData(b))
+    .then(buf => boomBuffer = buf);
 
 function playBoomSound() {
     if (!boomBuffer) return;
@@ -61,30 +62,29 @@ function playBoomSound() {
     const src = audioCtx.createBufferSource();
     src.buffer = boomBuffer;
 
-    src.playbackRate.value = 0.7 + Math.random() * 0.6;
-    src.detune.value = (Math.random() * 1200) - 600;
+    // pitch perceptível
+    src.playbackRate.value = 0.85 + Math.random() * 0.3;
 
     src.connect(audioCtx.destination);
     src.start();
 }
 
-/* ================= LOGIC ================= */
-let dragging = false;
-let lastSpawn = 0;
-let nextDelay = 10;
-
+/* ================= UTIL ================= */
 function rand(min, max) {
     return min + Math.random() * (max - min);
 }
 
+/* ================= LOGIC ================= */
+let dragging = false;
+let lastSpawn = 0;
+const spamDelay = 10; // 0.01s fixo
+
 function spawnMeteor(tx, ty) {
     const now = performance.now();
-    if (now - lastSpawn < nextDelay) return;
-
+    if (now - lastSpawn < spamDelay) return;
     lastSpawn = now;
-    nextDelay = rand(10, 70);
 
-    const scale = rand(0.3, 2);
+    const scale = rand(0.9, 1.5);
 
     const meteor = document.createElement("img");
     meteor.src = "meteor.gif";
@@ -120,10 +120,10 @@ function spawnMeteor(tx, ty) {
 }
 
 function spawnBoom(x, y) {
-    const scale = rand(0.3, 2);
+    const scale = rand(0.9, 1.5);
 
     const boom = document.createElement("img");
-    boom.src = "boom.gif?" + Math.random();
+    boom.src = "boom.gif?" + Math.random(); // play único
     boom.className = "boom";
     boom.style.left = x + "px";
     boom.style.top  = y + "px";
@@ -131,6 +131,9 @@ function spawnBoom(x, y) {
     boom.style.zIndex = Math.floor(y);
 
     document.body.appendChild(boom);
+
+    // força render imediato
+    boom.getBoundingClientRect();
 
     playBoomSound();
 
@@ -141,7 +144,7 @@ function spawnBoom(x, y) {
     setTimeout(() => boom.remove(), 1580);
 }
 
-/* ================= INPUT (POINTER) ================= */
+/* ================= INPUT ================= */
 document.addEventListener("pointerdown", e => {
     audioCtx.resume();
     dragging = true;
