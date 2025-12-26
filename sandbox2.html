@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Meteor Spam</title>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #0444BC;
+    }
+
+    .meteor {
+        position: absolute;
+        width: 96px;
+        height: 96px;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+    }
+
+    .boom {
+        position: absolute;
+        width: 128px;
+        height: 128px;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+    }
+
+    @keyframes shake {
+        0% { transform: translate(0, 0); }
+        25% { transform: translate(6px, -6px); }
+        50% { transform: translate(-6px, 6px); }
+        75% { transform: translate(6px, 6px); }
+        100% { transform: translate(0, 0); }
+    }
+
+    .shake {
+        animation: shake 0.15s;
+    }
+</style>
+</head>
+
+<body>
+
+<script>
+let dragging = false;
+
+function spawnMeteor(x, y) {
+    const meteor = document.createElement("img");
+    meteor.src = "meteor.gif";
+    meteor.className = "meteor";
+
+    const startX = x - 200;
+    const startY = -100;
+
+    meteor.style.left = startX + "px";
+    meteor.style.top = startY + "px";
+
+    document.body.appendChild(meteor);
+
+    const duration = 600;
+    const startTime = performance.now();
+
+    function animate(time) {
+        const t = Math.min((time - startTime) / duration, 1);
+
+        const curX = startX + (x - startX) * t;
+        const curY = startY + (y - startY) * t;
+
+        meteor.style.left = curX + "px";
+        meteor.style.top = curY + "px";
+
+        if (t < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            meteor.remove();
+            spawnBoom(x, y);
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+function spawnBoom(x, y) {
+    const boom = document.createElement("img");
+    boom.src = "boom.gif";
+    boom.className = "boom";
+
+    boom.style.left = x + "px";
+    boom.style.top = y + "px";
+
+    document.body.appendChild(boom);
+
+    document.body.classList.remove("shake");
+    void document.body.offsetWidth;
+    document.body.classList.add("shake");
+
+    setTimeout(() => {
+        boom.remove();
+    }, 500);
+}
+
+document.addEventListener("mousedown", e => {
+    dragging = true;
+    spawnMeteor(e.clientX, e.clientY);
+});
+
+document.addEventListener("mousemove", e => {
+    if (dragging) {
+        spawnMeteor(e.clientX, e.clientY);
+    }
+});
+
+document.addEventListener("mouseup", () => {
+    dragging = false;
+});
+</script>
+
+</body>
+</html>
