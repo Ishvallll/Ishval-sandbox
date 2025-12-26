@@ -2,18 +2,19 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Meteor Spam FINAL</title>
+<title>Meteor Spam FINAL++</title>
 
 <style>
     body {
         margin: 0;
         overflow: hidden;
         background-color: #0444BC;
+        touch-action: none;
     }
 
     .meteor {
         position: absolute;
-        width: 192px;   /* 2x maior */
+        width: 192px;
         height: 192px;
         pointer-events: none;
         transform: translate(-50%, -50%);
@@ -21,22 +22,24 @@
 
     .boom {
         position: absolute;
-        width: 640px;   /* 5x maior */
-        height: 640px;
+        width: 1280px;
+        height: 1280px;
         pointer-events: none;
         transform: translate(-50%, -50%);
     }
 
     @keyframes shake {
         0%   { transform: translate(0, 0); }
-        25%  { transform: translate(8px, -8px); }
-        50%  { transform: translate(-8px, 8px); }
-        75%  { transform: translate(8px, 8px); }
+        15%  { transform: translate(25px, -25px); }
+        30%  { transform: translate(-25px, 25px); }
+        45%  { transform: translate(30px, 30px); }
+        60%  { transform: translate(-30px, -30px); }
+        75%  { transform: translate(20px, -20px); }
         100% { transform: translate(0, 0); }
     }
 
     .shake {
-        animation: shake 0.35s;
+        animation: shake 0.25s;
     }
 </style>
 </head>
@@ -46,36 +49,47 @@
 <script>
 let dragging = false;
 
-// som base (vai ser clonado)
-const boomSound = new Audio("brick1.ogg");
+/* ===== AUDIO SEM DELAY + PITCH ===== */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let boomBuffer = null;
+
+fetch("brick1.ogg")
+    .then(r => r.arrayBuffer())
+    .then(b => audioCtx.decodeAudioData(b))
+    .then(buf => boomBuffer = buf);
 
 function playBoomSound() {
-    const sfx = boomSound.cloneNode();
-    sfx.volume = 1;
-    sfx.play();
+    if (!boomBuffer) return;
+
+    const src = audioCtx.createBufferSource();
+    src.buffer = boomBuffer;
+
+    // pitch aleatório (grave ↔ agudo)
+    src.playbackRate.value = 0.75 + Math.random() * 0.6;
+
+    src.connect(audioCtx.destination);
+    src.start(0);
 }
 
+/* ===== METEORO ===== */
 function spawnMeteor(x, y) {
     const meteor = document.createElement("img");
     meteor.src = "meteor.gif";
     meteor.className = "meteor";
 
-    const startX = x;     // nasce no X do clique
-    const startY = -150;  // fora da tela
+    const startY = -150;
 
-    meteor.style.left = startX + "px";
+    meteor.style.left = x + "px";
     meteor.style.top = startY + "px";
 
     document.body.appendChild(meteor);
 
-    const duration = 600 / 1.5; // 1.5x mais rápido
+    const duration = 600 / 1.5;
     const startTime = performance.now();
 
     function animate(time) {
         const t = Math.min((time - startTime) / duration, 1);
-        const curY = startY + (y - startY) * t;
-
-        meteor.style.top = curY + "px";
+        meteor.style.top = (startY + (y - startY) * t) + "px";
 
         if (t < 1) {
             requestAnimationFrame(animate);
@@ -88,6 +102,7 @@ function spawnMeteor(x, y) {
     requestAnimationFrame(animate);
 }
 
+/* ===== BOOM ===== */
 function spawnBoom(x, y) {
     const boom = document.createElement("img");
     boom.src = "boom.gif";
@@ -98,33 +113,42 @@ function spawnBoom(x, y) {
 
     document.body.appendChild(boom);
 
-    // som do impacto
     playBoomSound();
 
-    // tremida da tela
     document.body.classList.remove("shake");
     void document.body.offsetWidth;
     document.body.classList.add("shake");
 
-    setTimeout(() => {
-        boom.remove();
-    }, 1580); // duração exata do gif
+    setTimeout(() => boom.remove(), 1580);
 }
 
+/* ===== MOUSE ===== */
 document.addEventListener("mousedown", e => {
     dragging = true;
     spawnMeteor(e.clientX, e.clientY);
 });
 
 document.addEventListener("mousemove", e => {
-    if (dragging) {
-        spawnMeteor(e.clientX, e.clientY);
-    }
+    if (dragging) spawnMeteor(e.clientX, e.clientY);
 });
 
-document.addEventListener("mouseup", () => {
-    dragging = false;
+document.addEventListener("mouseup", () => dragging = false);
+
+/* ===== TOUCH (MOBILE) ===== */
+document.addEventListener("touchstart", e => {
+    audioCtx.resume();
+    dragging = true;
+    const t = e.touches[0];
+    spawnMeteor(t.clientX, t.clientY);
 });
+
+document.addEventListener("touchmove", e => {
+    if (!dragging) return;
+    const t = e.touches[0];
+    spawnMeteor(t.clientX, t.clientY);
+});
+
+document.addEventListener("touchend", () => dragging = false);
 </script>
 
 </body>
