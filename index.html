@@ -21,7 +21,7 @@
 
     .grid {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(2, 1fr); /* 2x30 */
         gap: 20px;
     }
 
@@ -50,6 +50,7 @@
         text-decoration: none;
         font-weight: bold;
         font-size: 18px;
+        display: block;
     }
 </style>
 </head>
@@ -75,17 +76,27 @@
             </a>
         </div>
 
-        <!-- ITEM 3 -->
-        <div class="item"><a href="#"><img src="box-1.png">placeholder</a></div>
+        <!-- PLACEHOLDERS NORMAIS -->
+        <div class="item"><a href="null.mp4"><img src="box-1.png">placeholder</a></div>
+        <div class="item"><a href="null.mp4"><img src="box-1.png">placeholder</a></div>
 
-        <!-- ITEM 4 -->
-        <div class="item"><a href="#"><img src="box-1.png">placeholder</a></div>
+        <!-- PLACEHOLDERS VAZIOS -->
+        <div class="item"><a href="null.mp4"><img src="box-1.png"></a></div>
+        <div class="item"><a href="null.mp4"><img src="box-1.png"></a></div>
 
-        <!-- ITEM 5 -->
-        <div class="item"><a href="#"><img src="box-1.png">placeholder</a></div>
+        <!--
+        DUPLICA os dois tipos acima (placeholder normal + vazio)
+        até completar 59 itens no total
+        (grid 2x30 = 60 slots)
+        -->
 
-        <!-- ITEM 6 -->
-        <div class="item"><a href="#"><img src="box-1.png">placeholder</a></div>
+        <!-- ÚLTIMO ITEM (60) -->
+        <div class="item">
+            <a href="sandbox0.html">
+                <img src="box-0.gif" alt="Testing">
+                Testing
+            </a>
+        </div>
 
     </div>
 </div>
