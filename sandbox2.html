@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Meteor Spam FINAL++</title>
+<title>Meteor System FINAL</title>
 
 <style>
     body {
@@ -29,17 +29,16 @@
     }
 
     @keyframes shake {
-        0%   { transform: translate(0, 0); }
-        15%  { transform: translate(25px, -25px); }
-        30%  { transform: translate(-25px, 25px); }
-        45%  { transform: translate(30px, 30px); }
-        60%  { transform: translate(-30px, -30px); }
-        75%  { transform: translate(20px, -20px); }
-        100% { transform: translate(0, 0); }
+        0%   { transform: translate(0,0); }
+        20%  { transform: translate(35px,-35px); }
+        40%  { transform: translate(-35px,35px); }
+        60%  { transform: translate(40px,40px); }
+        80%  { transform: translate(-40px,-40px); }
+        100% { transform: translate(0,0); }
     }
 
     .shake {
-        animation: shake 0.25s;
+        animation: shake 0.3s;
     }
 </style>
 </head>
@@ -48,8 +47,11 @@
 
 <script>
 let dragging = false;
+let lastSpawn = 0;
+const spamDelay = 10; // 0.01s
+let lastInputType = null;
 
-/* ===== AUDIO SEM DELAY + PITCH ===== */
+/* ===== AUDIO PROFISSIONAL ===== */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let boomBuffer = null;
 
@@ -64,38 +66,45 @@ function playBoomSound() {
     const src = audioCtx.createBufferSource();
     src.buffer = boomBuffer;
 
-    // pitch aleatório (grave ↔ agudo)
-    src.playbackRate.value = 0.75 + Math.random() * 0.6;
+    // pitch REAL (cents)
+    src.detune.value = (Math.random() * 800) - 400;
 
     src.connect(audioCtx.destination);
-    src.start(0);
+    src.start();
 }
 
 /* ===== METEORO ===== */
-function spawnMeteor(x, y) {
+function spawnMeteor(targetX, targetY) {
+    const now = performance.now();
+    if (now - lastSpawn < spamDelay) return;
+    lastSpawn = now;
+
     const meteor = document.createElement("img");
     meteor.src = "meteor.gif";
     meteor.className = "meteor";
 
-    const startY = -150;
+    const startX = Math.random() * window.innerWidth;
+    const startY = -200;
 
-    meteor.style.left = x + "px";
+    meteor.style.left = startX + "px";
     meteor.style.top = startY + "px";
 
     document.body.appendChild(meteor);
 
-    const duration = 600 / 1.5;
+    const duration = 400;
     const startTime = performance.now();
 
-    function animate(time) {
-        const t = Math.min((time - startTime) / duration, 1);
-        meteor.style.top = (startY + (y - startY) * t) + "px";
+    function animate(t) {
+        const p = Math.min((t - startTime) / duration, 1);
 
-        if (t < 1) {
+        meteor.style.left = (startX + (targetX - startX) * p) + "px";
+        meteor.style.top  = (startY + (targetY - startY) * p) + "px";
+
+        if (p < 1) {
             requestAnimationFrame(animate);
         } else {
             meteor.remove();
-            spawnBoom(x, y);
+            spawnBoom(targetX, targetY);
         }
     }
 
@@ -105,11 +114,14 @@ function spawnMeteor(x, y) {
 /* ===== BOOM ===== */
 function spawnBoom(x, y) {
     const boom = document.createElement("img");
-    boom.src = "boom.gif";
+    boom.src = "boom.gif?" + Math.random(); // força play único
     boom.className = "boom";
 
     boom.style.left = x + "px";
     boom.style.top = y + "px";
+
+    // camada baseada na altura
+    boom.style.zIndex = Math.floor(y);
 
     document.body.appendChild(boom);
 
@@ -122,33 +134,46 @@ function spawnBoom(x, y) {
     setTimeout(() => boom.remove(), 1580);
 }
 
-/* ===== MOUSE ===== */
+/* ===== INPUT ===== */
+function handleInput(x, y, type) {
+    if (lastInputType && lastInputType !== type) return;
+    lastInputType = type;
+    spawnMeteor(x, y);
+}
+
+/* Mouse */
 document.addEventListener("mousedown", e => {
     dragging = true;
-    spawnMeteor(e.clientX, e.clientY);
+    handleInput(e.clientX, e.clientY, "mouse");
 });
 
 document.addEventListener("mousemove", e => {
-    if (dragging) spawnMeteor(e.clientX, e.clientY);
+    if (dragging) handleInput(e.clientX, e.clientY, "mouse");
 });
 
-document.addEventListener("mouseup", () => dragging = false);
+document.addEventListener("mouseup", () => {
+    dragging = false;
+    lastInputType = null;
+});
 
-/* ===== TOUCH (MOBILE) ===== */
+/* Touch */
 document.addEventListener("touchstart", e => {
     audioCtx.resume();
     dragging = true;
     const t = e.touches[0];
-    spawnMeteor(t.clientX, t.clientY);
+    handleInput(t.clientX, t.clientY, "touch");
 });
 
 document.addEventListener("touchmove", e => {
     if (!dragging) return;
     const t = e.touches[0];
-    spawnMeteor(t.clientX, t.clientY);
+    handleInput(t.clientX, t.clientY, "touch");
 });
 
-document.addEventListener("touchend", () => dragging = false);
+document.addEventListener("touchend", () => {
+    dragging = false;
+    lastInputType = null;
+});
 </script>
 
 </body>
