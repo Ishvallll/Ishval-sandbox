@@ -10,10 +10,62 @@
         background-color: #0444BC;
         font-family: Arial, sans-serif;
         overflow: hidden;
+        color: white;
     }
 
+    /* ===== HEADER ===== */
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 20px;
+        background: rgba(0,0,0,0.2);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .header-left img {
+        width: 48px;
+        height: 48px;
+        animation: spin 6s linear infinite;
+        cursor: pointer;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .title {
+        font-size: 26px;
+        font-weight: bold;
+    }
+
+    .desc {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .boi-counter {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .boi-counter img {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* ===== GRID ===== */
     .scroll-container {
-        height: 100vh;
+        height: calc(100vh - 90px);
         overflow-y: auto;
         padding: 20px;
         box-sizing: border-box;
@@ -21,28 +73,25 @@
 
     .grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2x30 */
+        grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
 
     .item {
-        background: rgba(255,255,255,0.1);
-        border-radius: 12px;
-        padding: 10px;
+        background: rgba(255,255,255,0.12);
+        border-radius: 14px;
+        padding: 14px;
         text-align: center;
         transition: transform 0.2s, background 0.2s;
+        min-height: 200px; /* evita achatamento */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .item:hover {
         transform: scale(1.05);
-        background: rgba(255,255,255,0.2);
-    }
-
-    .item img {
-        width: 100%;
-        max-height: 120px;
-        object-fit: contain;
-        margin-bottom: 10px;
+        background: rgba(255,255,255,0.22);
     }
 
     .item a {
@@ -50,12 +99,34 @@
         text-decoration: none;
         font-weight: bold;
         font-size: 18px;
-        display: block;
+        width: 100%;
+    }
+
+    .item img {
+        width: 100%;
+        max-height: 130px;
+        object-fit: contain;
+        margin-bottom: 10px;
     }
 </style>
 </head>
 
 <body>
+
+<div class="header">
+    <div class="header-left">
+        <img src="ish.png" id="ish">
+        <div>
+            <div class="title">Ishval's Sandbox</div>
+            <div class="desc" id="desc"></div>
+        </div>
+    </div>
+
+    <div class="boi-counter">
+        <img src="boi.png">
+        <span id="boiCount">0</span>
+    </div>
+</div>
 
 <div class="scroll-container">
     <div class="grid">
@@ -63,7 +134,7 @@
         <!-- ITEM 1 -->
         <div class="item">
             <a href="sandbox1.html">
-                <img src="box-2.png" alt="Clicker">
+                <img src="box-2.png">
                 Clicker
             </a>
         </div>
@@ -71,35 +142,63 @@
         <!-- ITEM 2 -->
         <div class="item">
             <a href="sandbox2.html">
-                <img src="box-3.png" alt="Meteor">
+                <img src="box-3.png">
                 Meteor
             </a>
         </div>
 
-        <!-- PLACEHOLDERS NORMAIS -->
-        <div class="item"><a href="null.mp4"><img src="box-1.png">placeholder</a></div>
-        <div class="item"><a href="null.mp4"><img src="box-1.png">placeholder</a></div>
+        <!-- PLACEHOLDERS (auto 57x) -->
+        <script>
+            for (let i = 0; i < 57; i++) {
+                document.write(`
+                <div class="item">
+                    <a href="null.mp4">
+                        <img src="box-1.png">
+                        placeholder
+                    </a>
+                </div>
+                `);
+            }
+        </script>
 
-        <!-- PLACEHOLDERS VAZIOS -->
-        <div class="item"><a href="null.mp4"><img src="box-1.png"></a></div>
-        <div class="item"><a href="null.mp4"><img src="box-1.png"></a></div>
-
-        <!--
-        DUPLICA os dois tipos acima (placeholder normal + vazio)
-        até completar 59 itens no total
-        (grid 2x30 = 60 slots)
-        -->
-
-        <!-- ÚLTIMO ITEM (60) -->
+        <!-- ITEM 60 -->
         <div class="item">
             <a href="sandbox0.html">
-                <img src="box-0.gif" alt="Testing">
+                <img src="box-0.gif">
                 Testing
             </a>
         </div>
 
     </div>
 </div>
+
+<script>
+    /* ===== DESCRIÇÃO ALEATÓRIA ===== */
+    const descs = [
+        "only seals poop here ig",
+        "cool place ngl",
+        "my house ig",
+        "btw, i don't like u @seal_enjoyer_de",
+        "pootis",
+        "caseoh for some reason like balls '-'",
+        "yeah yeah, no one knows what is the first 2 letters if **pe :trollface:",
+        "wall of shame: @seal_enjoyer_de"
+    ];
+
+    document.getElementById("desc").innerText =
+        descs[Math.floor(Math.random() * descs.length)];
+
+    /* ===== BOI SYSTEM ===== */
+    let boi = Number(localStorage.getItem("boi") || 0);
+    const boiText = document.getElementById("boiCount");
+    boiText.innerText = boi;
+
+    document.getElementById("ish").onclick = () => {
+        boi++;
+        localStorage.setItem("boi", boi);
+        boiText.innerText = boi;
+    };
+</script>
 
 </body>
 </html>
