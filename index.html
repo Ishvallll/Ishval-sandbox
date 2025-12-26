@@ -1,1 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Click Counter</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0444BC;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
 
+    #counter {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    img {
+      width: 200px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="counter">Clicks: 0</div>
+
+  <img
+    id="btn"
+    src="placeholder-unpressed.png"
+    draggable="false"
+  >
+
+  <audio id="clickSound" src="click.ogg"></audio>
+  <audio id="tenSound" src="10.ogg"></audio>
+
+  <script>
+    const img = document.getElementById("btn");
+    const counter = document.getElementById("counter");
+    const clickSound = document.getElementById("clickSound");
+    const tenSound = document.getElementById("tenSound");
+
+    let clicks = 0;
+    let pressed = false;
+
+    function press() {
+      if (pressed) return;
+      pressed = true;
+
+      img.src = "placeholder-pressed.png";
+
+      clicks++;
+      counter.textContent = "Clicks: " + clicks;
+
+      clickSound.currentTime = 0;
+      clickSound.play();
+
+      if (clicks % 10 === 0) {
+        tenSound.currentTime = 0;
+        tenSound.play();
+      }
+    }
+
+    function release() {
+      pressed = false;
+      img.src = "placeholder-unpressed.png";
+    }
+
+    // Mouse
+    img.addEventListener("mousedown", press);
+    document.addEventListener("mouseup", release);
+
+    // Touch
+    img.addEventListener("touchstart", press);
+    document.addEventListener("touchend", release);
+  </script>
+
+</body>
+  </html>
