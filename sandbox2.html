@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Meteor Spam</title>
+<title>Meteor ig</title>
 
 <style>
     body {
@@ -13,25 +13,25 @@
 
     .meteor {
         position: absolute;
-        width: 96px;
-        height: 96px;
+        width: 192px; /* 2x maior */
+        height: 192px;
         pointer-events: none;
         transform: translate(-50%, -50%);
     }
 
     .boom {
         position: absolute;
-        width: 128px;
-        height: 128px;
+        width: 640px; /* 5x maior */
+        height: 640px;
         pointer-events: none;
         transform: translate(-50%, -50%);
     }
 
     @keyframes shake {
-        0% { transform: translate(0, 0); }
-        25% { transform: translate(6px, -6px); }
-        50% { transform: translate(-6px, 6px); }
-        75% { transform: translate(6px, 6px); }
+        0%   { transform: translate(0, 0); }
+        25%  { transform: translate(8px, -8px); }
+        50%  { transform: translate(-8px, 8px); }
+        75%  { transform: translate(8px, 8px); }
         100% { transform: translate(0, 0); }
     }
 
@@ -51,24 +51,22 @@ function spawnMeteor(x, y) {
     meteor.src = "meteor.gif";
     meteor.className = "meteor";
 
-    const startX = x - 200;
-    const startY = -100;
+    const startX = x;      // nasce no X do clique
+    const startY = -150;   // fora da tela
 
     meteor.style.left = startX + "px";
     meteor.style.top = startY + "px";
 
     document.body.appendChild(meteor);
 
-    const duration = 600;
+    const duration = 600 / 1.5; // 1.5x mais rápido
     const startTime = performance.now();
 
     function animate(time) {
         const t = Math.min((time - startTime) / duration, 1);
 
-        const curX = startX + (x - startX) * t;
         const curY = startY + (y - startY) * t;
 
-        meteor.style.left = curX + "px";
         meteor.style.top = curY + "px";
 
         if (t < 1) {
@@ -98,7 +96,7 @@ function spawnBoom(x, y) {
 
     setTimeout(() => {
         boom.remove();
-    }, 500);
+    }, 3000); // 3 segundos
 }
 
 document.addEventListener("mousedown", e => {
