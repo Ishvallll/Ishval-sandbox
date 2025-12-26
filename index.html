@@ -42,20 +42,20 @@
 
   <audio id="clickSound" src="click.ogg"></audio>
   <audio id="tenSound" src="10.ogg"></audio>
+  <audio id="bgMusic" src="background-music.ogg" loop></audio>
 
   <script>
     const img = document.getElementById("btn");
     const counter = document.getElementById("counter");
     const clickSound = document.getElementById("clickSound");
     const tenSound = document.getElementById("tenSound");
+    const bgMusic = document.getElementById("bgMusic");
 
     let clicks = 0;
-    let pressed = false;
-    let isTouch = false;
 
     function press() {
-      if (pressed) return;
-      pressed = true;
+      // 🔒 TRAVA ABSOLUTA: só conta se NÃO estiver pressionado
+      if (img.src.includes("placeholder-pressed.png")) return;
 
       img.src = "placeholder-pressed.png";
 
@@ -69,32 +69,29 @@
         tenSound.currentTime = 0;
         tenSound.play();
       }
+
+      // inicia música de fundo no primeiro clique
+      if (bgMusic.paused) {
+        bgMusic.volume = 0.6;
+        bgMusic.play();
+      }
     }
 
     function release() {
-      pressed = false;
       img.src = "placeholder-unpressed.png";
     }
 
+    // Mouse
+    img.addEventListener("mousedown", press);
+    document.addEventListener("mouseup", release);
+
     // Touch
-    img.addEventListener("touchstart", () => {
-      isTouch = true;
+    img.addEventListener("touchstart", (e) => {
+      e.preventDefault(); // 🚫 mata eventos fantasmas
       press();
     });
 
-    document.addEventListener("touchend", () => {
-      release();
-      setTimeout(() => isTouch = false, 50);
-    });
-
-    // Mouse (ignora se for touch)
-    img.addEventListener("mousedown", () => {
-      if (!isTouch) press();
-    });
-
-    document.addEventListener("mouseup", () => {
-      if (!isTouch) release();
-    });
+    document.addEventListener("touchend", release);
   </script>
 
 </body>
