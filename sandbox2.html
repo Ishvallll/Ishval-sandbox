@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Meteor ig</title>
+<title>Meteor Spam FINAL</title>
 
 <style>
     body {
@@ -13,7 +13,7 @@
 
     .meteor {
         position: absolute;
-        width: 192px; /* 2x maior */
+        width: 192px;   /* 2x maior */
         height: 192px;
         pointer-events: none;
         transform: translate(-50%, -50%);
@@ -21,7 +21,7 @@
 
     .boom {
         position: absolute;
-        width: 640px; /* 5x maior */
+        width: 640px;   /* 5x maior */
         height: 640px;
         pointer-events: none;
         transform: translate(-50%, -50%);
@@ -36,7 +36,7 @@
     }
 
     .shake {
-        animation: shake 0.15s;
+        animation: shake 0.35s;
     }
 </style>
 </head>
@@ -46,13 +46,22 @@
 <script>
 let dragging = false;
 
+// som base (vai ser clonado)
+const boomSound = new Audio("brick1.ogg");
+
+function playBoomSound() {
+    const sfx = boomSound.cloneNode();
+    sfx.volume = 1;
+    sfx.play();
+}
+
 function spawnMeteor(x, y) {
     const meteor = document.createElement("img");
     meteor.src = "meteor.gif";
     meteor.className = "meteor";
 
-    const startX = x;      // nasce no X do clique
-    const startY = -150;   // fora da tela
+    const startX = x;     // nasce no X do clique
+    const startY = -150;  // fora da tela
 
     meteor.style.left = startX + "px";
     meteor.style.top = startY + "px";
@@ -64,7 +73,6 @@ function spawnMeteor(x, y) {
 
     function animate(time) {
         const t = Math.min((time - startTime) / duration, 1);
-
         const curY = startY + (y - startY) * t;
 
         meteor.style.top = curY + "px";
@@ -90,13 +98,17 @@ function spawnBoom(x, y) {
 
     document.body.appendChild(boom);
 
+    // som do impacto
+    playBoomSound();
+
+    // tremida da tela
     document.body.classList.remove("shake");
     void document.body.offsetWidth;
     document.body.classList.add("shake");
 
     setTimeout(() => {
         boom.remove();
-    }, 3000); // 3 segundos
+    }, 1580); // duração exata do gif
 }
 
 document.addEventListener("mousedown", e => {
