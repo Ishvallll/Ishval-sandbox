@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Meteor System FINAL</title>
+<title>Meteor Engine FINAL</title>
 
 <style>
     body {
@@ -12,33 +12,33 @@
         touch-action: none;
     }
 
-    .meteor {
+    .meteor, .boom {
         position: absolute;
-        width: 192px;
-        height: 192px;
         pointer-events: none;
         transform: translate(-50%, -50%);
     }
 
+    .meteor {
+        width: 192px;
+        height: 192px;
+    }
+
     .boom {
-        position: absolute;
         width: 1280px;
         height: 1280px;
-        pointer-events: none;
-        transform: translate(-50%, -50%);
     }
 
     @keyframes shake {
         0%   { transform: translate(0,0); }
-        20%  { transform: translate(35px,-35px); }
-        40%  { transform: translate(-35px,35px); }
-        60%  { transform: translate(40px,40px); }
-        80%  { transform: translate(-40px,-40px); }
+        20%  { transform: translate(45px,-45px); }
+        40%  { transform: translate(-45px,45px); }
+        60%  { transform: translate(55px,55px); }
+        80%  { transform: translate(-55px,-55px); }
         100% { transform: translate(0,0); }
     }
 
     .shake {
-        animation: shake 0.3s;
+        animation: shake 0.35s;
     }
 </style>
 </head>
@@ -46,19 +46,14 @@
 <body>
 
 <script>
-let dragging = false;
-let lastSpawn = 0;
-const spamDelay = 10; // 0.01s
-let lastInputType = null;
-
-/* ===== AUDIO PROFISSIONAL ===== */
+/* ================= AUDIO ================= */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let boomBuffer = null;
+let boomBuffer;
 
 fetch("brick1.ogg")
-    .then(r => r.arrayBuffer())
-    .then(b => audioCtx.decodeAudioData(b))
-    .then(buf => boomBuffer = buf);
+  .then(r => r.arrayBuffer())
+  .then(b => audioCtx.decodeAudioData(b))
+  .then(buf => boomBuffer = buf);
 
 function playBoomSound() {
     if (!boomBuffer) return;
@@ -66,61 +61,73 @@ function playBoomSound() {
     const src = audioCtx.createBufferSource();
     src.buffer = boomBuffer;
 
-    // pitch REAL (cents)
-    src.detune.value = (Math.random() * 800) - 400;
+    src.playbackRate.value = 0.7 + Math.random() * 0.6;
+    src.detune.value = (Math.random() * 1200) - 600;
 
     src.connect(audioCtx.destination);
     src.start();
 }
 
-/* ===== METEORO ===== */
-function spawnMeteor(targetX, targetY) {
+/* ================= LOGIC ================= */
+let dragging = false;
+let lastSpawn = 0;
+let nextDelay = 10;
+
+function rand(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+function spawnMeteor(tx, ty) {
     const now = performance.now();
-    if (now - lastSpawn < spamDelay) return;
+    if (now - lastSpawn < nextDelay) return;
+
     lastSpawn = now;
+    nextDelay = rand(10, 70);
+
+    const scale = rand(0.3, 2);
 
     const meteor = document.createElement("img");
     meteor.src = "meteor.gif";
     meteor.className = "meteor";
+    meteor.style.transform = `translate(-50%, -50%) scale(${scale})`;
 
-    const startX = Math.random() * window.innerWidth;
-    const startY = -200;
+    const sx = Math.random() * window.innerWidth;
+    const sy = -200;
 
-    meteor.style.left = startX + "px";
-    meteor.style.top = startY + "px";
+    meteor.style.left = sx + "px";
+    meteor.style.top  = sy + "px";
 
     document.body.appendChild(meteor);
 
     const duration = 400;
-    const startTime = performance.now();
+    const start = performance.now();
 
     function animate(t) {
-        const p = Math.min((t - startTime) / duration, 1);
+        const p = Math.min((t - start) / duration, 1);
 
-        meteor.style.left = (startX + (targetX - startX) * p) + "px";
-        meteor.style.top  = (startY + (targetY - startY) * p) + "px";
+        meteor.style.left = (sx + (tx - sx) * p) + "px";
+        meteor.style.top  = (sy + (ty - sy) * p) + "px";
 
         if (p < 1) {
             requestAnimationFrame(animate);
         } else {
             meteor.remove();
-            spawnBoom(targetX, targetY);
+            spawnBoom(tx, ty);
         }
     }
 
     requestAnimationFrame(animate);
 }
 
-/* ===== BOOM ===== */
 function spawnBoom(x, y) {
+    const scale = rand(0.3, 2);
+
     const boom = document.createElement("img");
-    boom.src = "boom.gif?" + Math.random(); // força play único
+    boom.src = "boom.gif?" + Math.random();
     boom.className = "boom";
-
     boom.style.left = x + "px";
-    boom.style.top = y + "px";
-
-    // camada baseada na altura
+    boom.style.top  = y + "px";
+    boom.style.transform = `translate(-50%, -50%) scale(${scale})`;
     boom.style.zIndex = Math.floor(y);
 
     document.body.appendChild(boom);
@@ -134,46 +141,19 @@ function spawnBoom(x, y) {
     setTimeout(() => boom.remove(), 1580);
 }
 
-/* ===== INPUT ===== */
-function handleInput(x, y, type) {
-    if (lastInputType && lastInputType !== type) return;
-    lastInputType = type;
-    spawnMeteor(x, y);
-}
-
-/* Mouse */
-document.addEventListener("mousedown", e => {
-    dragging = true;
-    handleInput(e.clientX, e.clientY, "mouse");
-});
-
-document.addEventListener("mousemove", e => {
-    if (dragging) handleInput(e.clientX, e.clientY, "mouse");
-});
-
-document.addEventListener("mouseup", () => {
-    dragging = false;
-    lastInputType = null;
-});
-
-/* Touch */
-document.addEventListener("touchstart", e => {
+/* ================= INPUT (POINTER) ================= */
+document.addEventListener("pointerdown", e => {
     audioCtx.resume();
     dragging = true;
-    const t = e.touches[0];
-    handleInput(t.clientX, t.clientY, "touch");
+    spawnMeteor(e.clientX, e.clientY);
 });
 
-document.addEventListener("touchmove", e => {
-    if (!dragging) return;
-    const t = e.touches[0];
-    handleInput(t.clientX, t.clientY, "touch");
+document.addEventListener("pointermove", e => {
+    if (dragging) spawnMeteor(e.clientX, e.clientY);
 });
 
-document.addEventListener("touchend", () => {
-    dragging = false;
-    lastInputType = null;
-});
+document.addEventListener("pointerup", () => dragging = false);
+document.addEventListener("pointercancel", () => dragging = false);
 </script>
 
 </body>
