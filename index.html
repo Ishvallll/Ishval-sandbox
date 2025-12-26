@@ -1,224 +1,348 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ishval's Sandbox</title>
 
 <style>
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: #0444BC;
-  color: white;
-  font-family: Arial, sans-serif;
-  overflow-y: scroll;
-}
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0444BC;
+    color: white;
+    font-family: Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-header {
-  display: flex;
-  align-items: center;
-  padding: 20px;
-  gap: 15px;
-}
+  /* header */
+  .header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 20px;
+    background: rgba(0,0,0,0.25);
+    gap: 12px;
+  }
 
-#ish {
-  width: 64px;
-  height: 64px;
-  animation: spin 4s linear infinite;
-  cursor: pointer;
-}
+  .header-left { display:flex; align-items:center; gap:12px; }
+  #ish { width:48px; height:48px; cursor:pointer; animation: spin 5s linear infinite; }
+  @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+  .title { font-size:26px; font-weight:700; }
+  .desc { font-size:14px; opacity:0.85; }
 
-#title {
-  font-size: 28px;
-}
+  .right-box { display:flex; align-items:center; gap:10px; }
+  .right-box img { width:32px; }
 
-#desc {
-  font-size: 14px;
-  opacity: 0.8;
-}
+  /* username area + leaderboard title */
+  .username-box {
+    display:flex;
+    gap:8px;
+    padding:10px 20px;
+    background: rgba(0,0,0,0.12);
+    align-items:center;
+  }
+  .username-box input { padding:6px 8px; border-radius:6px; border:none; outline:none; }
+  .username-box button { padding:6px 10px; border-radius:6px; border:none; cursor:pointer; background:#0b63d1; color:white; font-weight:700; }
 
-#top-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  .name-status { margin-left:8px; font-size:13px; opacity:0.95; }
 
-#boi-img {
-  width: 32px;
-}
+  .leaderboard {
+    padding:12px 20px;
+    background: rgba(0,0,0,0.12);
+    font-size:14px;
+  }
+  .leaderboard b { font-size:16px; }
 
-#grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  padding: 80px 20px 200px;
-}
+  /* grid */
+  .scroll-container {
+    height: calc(100vh - 190px); /* header + username + leaderboard ~ 190px */
+    overflow-y: auto;
+    padding: 20px;
+  }
 
-.card {
-  background: rgba(0,0,0,0.2);
-  border-radius: 12px;
-  padding: 10px;
-  text-align: center;
-}
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
 
-.card img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
-}
+  .item {
+    background: rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 14px;
+    min-height: 220px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    transition: transform .18s, background .18s;
+  }
+  .item:hover { transform: scale(1.04); background: rgba(255,255,255,0.2); }
 
-#username-box {
-  margin: 10px 20px;
-}
+  .item img { width:100%; max-height:140px; object-fit:contain; margin-bottom:10px; display:block; }
+  .item a { color:white; text-decoration:none; font-weight:700; font-size:18px; display:block; }
 
-input, button {
-  padding: 6px;
-}
-
-#leaderboard {
-  padding: 20px;
-  font-size: 14px;
-}
+  /* small responsive nicety */
+  @media (max-width:600px){
+    .grid { grid-template-columns: 1fr; }
+    #ish { width:40px; height:40px; }
+  }
 </style>
 </head>
-
 <body>
 
-<header>
-  <img src="ish.png" id="ish">
-  <div>
-    <div id="title">Ishval's Sandbox</div>
-    <div id="desc"></div>
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <img src="ish.png" id="ish" alt="ish">
+    <div>
+      <div class="title">Ishval's Sandbox</div>
+      <div class="desc" id="desc">loading desc...</div>
+    </div>
   </div>
 
-  <div id="top-right">
-    <img src="boi.png" id="boi-img">
-    <span id="boi-count">0</span>
+  <div class="right-box">
+    <img src="boi.png" alt="boi">
+    <div id="boiCount">0</div>
   </div>
-</header>
-
-<div id="username-box">
-  <input id="username" placeholder="username">
-  <button onclick="confirmName()">Confirm</button>
-  <span id="name-status"></span>
 </div>
 
-<div id="leaderboard">
-  <b>Global Leaderboard</b>
-  <div id="top-player">Loading...</div>
+<!-- USERNAME + CONFIRM -->
+<div class="username-box">
+  <input id="username" placeholder="input your cool username" autocomplete="off">
+  <button id="confirmBtn">🪄 Set</button>
+  <div class="name-status" id="nameStatus"></div>
 </div>
 
-<div id="grid"></div>
+<!-- LEADERBOARD TITLE + TOP 10 -->
+<div class="leaderboard">
+  <b>Boi's Leaderboard btw :trollface:</b>
+  <div id="leaderboardList">loading the cool Leaderboard ig</div>
+</div>
 
+<!-- GRID -->
+<div class="scroll-container">
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- FIREBASE (modular) + APP LOGIC -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set, get, update, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  // --- IMPORTS (CDN modular SDK) ---
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import {
+    getDatabase, ref, get, set, onValue, child
+  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC2CvdIZjn7afps9tRiqKrPailDocBDPsc",
-  authDomain: "global-boi.firebaseapp.com",
-  databaseURL: "https://global-boi-default-rtdb.firebaseio.com",
-  projectId: "global-boi",
-  storageBucket: "global-boi.firebasestorage.app",
-  messagingSenderId: "777647816380",
-  appId: "1:777647816380:web:cb38c43b31e1297ac3dab9"
-};
+  // --- FIREBASE CONFIG: substitua se precisar ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyC2CvdIZjn7afps9tRiqKrPailDocBDPsc",
+    authDomain: "global-boi.firebaseapp.com",
+    databaseURL: "https://global-boi-default-rtdb.firebaseio.com",
+    projectId: "global-boi",
+    storageBucket: "global-boi.appspot.com",
+    messagingSenderId: "777647816380",
+    appId: "1:777647816380:web:cb38c43b31e1297ac3dab9"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+  // init
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-let boi = Number(localStorage.getItem("boi") || 0);
-let username = localStorage.getItem("username") || "";
+  // --- TEXTS YOU PROVIDED (applied) ---
+  const TEXT = {
+    inputPlaceholder: "input your cool username",
+    confirmBtn: "🪄 Set",
+    takenMsg: "Username already exist u stoopid.",
+    okMsg: "cool and original username ig confirmed.",
+    leaderboardTitle: "Boi's Leaderboard btw :trollface:",
+    leaderboardLoading: "loading the cool Leaderboard ig",
+    rowFormat: (i, name, boi) => `#${i} ${name} — ${boi} Boi's`,
+    placeholderText: "Placeholder",
+    testingText: "Testing",
+    top10AltTitle: "Top 10 Unemployed People",
+    nodeNameUsers: "users",
+    coinName: "Boi"
+  };
 
-const descs = [
-"only seals poop here ig",
-"cool place ngl",
-"my house ig",
-"btw, i don't like u @seal_enjoyer_de",
-"pootis",
-"caseoh for some reason like balls '-'",
-"yeah yeah, no one knows what is the first 2 letters if **pe :trollface:",
-"wall of shame: @seal_enjoyer_de"
-];
+  // apply placeholder/button text
+  const usernameInput = document.getElementById("username");
+  const confirmBtn = document.getElementById("confirmBtn");
+  usernameInput.placeholder = TEXT.inputPlaceholder;
+  confirmBtn.textContent = TEXT.confirmBtn;
+  document.getElementById("leaderboardList").innerText = TEXT.leaderboardLoading;
+  document.querySelector(".leaderboard b").innerText = TEXT.leaderboardTitle;
 
-document.getElementById("desc").innerText =
-descs[Math.floor(Math.random()*descs.length)];
+  // --- RANDOM DESC LINES (kept from earlier) ---
+  const descs = [
+    "only seals poop here ig",
+    "cool place ngl",
+    "my house ig",
+    "btw, i don't like u @seal_enjoyer_de",
+    "pootis",
+    "caseoh for some reason like balls '-'",
+    "yeah yeah, no one knows what is the first 2 letters if **pe :trollface:",
+    "wall of shame: @seal_enjoyer_de"
+  ];
+  document.getElementById("desc").innerText = descs[Math.floor(Math.random()*descs.length)];
 
-document.getElementById("boi-count").innerText = boi;
+  // --- STATE ---
+  let boi = Number(localStorage.getItem("boi") || 0);
+  let username = localStorage.getItem("username") || "";
+  let usernameLocked = !!username; // if saved, treat as locked
+  const boiCount = document.getElementById("boiCount");
+  const nameStatus = document.getElementById("nameStatus");
+  boiCount.innerText = boi;
 
-document.getElementById("ish").onclick = () => {
-  boi++;
-  saveBoi();
-};
-
-function saveBoi(){
-  localStorage.setItem("boi", boi);
-  document.getElementById("boi-count").innerText = boi;
-  if(username){
-    set(ref(db, "users/"+username), { boi });
+  // restore locked username UI
+  if(usernameLocked){
+    usernameInput.value = username;
+    usernameInput.disabled = true;
+    confirmBtn.disabled = true;
+    nameStatus.innerText = TEXT.okMsg;
   }
-}
 
-window.confirmName = async () => {
-  const name = document.getElementById("username").value.trim();
-  if(!name) return;
+  // prevent Enter
+  usernameInput.addEventListener("keydown", e => { if(e.key === "Enter") e.preventDefault(); });
 
-  const snap = await get(ref(db, "users/"+name));
-  if(snap.exists()){
-    document.getElementById("name-status").innerText = "Taken ❌";
-    return;
+  // --- CONFIRM NAME: UNIQUE (global) ---
+  async function confirmName(){
+    const name = usernameInput.value.trim();
+    if(!name) {
+      nameStatus.innerText = "invalid username";
+      return;
+    }
+
+    try {
+      const snap = await get(ref(db, `${TEXT.nodeNameUsers}/${name}`));
+      if (snap.exists()) {
+        nameStatus.innerText = TEXT.takenMsg;
+        return;
+      }
+
+      // reserve and set initial boi
+      await set(ref(db, `${TEXT.nodeNameUsers}/${name}`), { boi });
+      localStorage.setItem("username", name);
+      username = name;
+      usernameLocked = true;
+      usernameInput.disabled = true;
+      confirmBtn.disabled = true;
+      nameStatus.innerText = TEXT.okMsg;
+
+      // refresh leaderboard
+      loadLeaderboard();
+    } catch(err){
+      console.error("confirmName error", err);
+      nameStatus.innerText = "error contacting server";
+    }
   }
 
-  username = name;
-  localStorage.setItem("username", name);
-  set(ref(db, "users/"+name), { boi });
-  document.getElementById("name-status").innerText = "OK ✅";
-};
+  confirmBtn.addEventListener("click", confirmName);
 
-async function loadLeaderboard(){
-  const snap = await get(ref(db, "users"));
-  let top = { name:"none", boi:0 };
+  // --- CLICKISH: farm boi (spam allowed) ---
+  document.getElementById("ish").addEventListener("click", async () => {
+    if(!usernameLocked) return; // must confirm name first
+    boi++;
+    boiCount.innerText = boi;
+    localStorage.setItem("boi", boi);
 
-  snap.forEach(s=>{
-    if(s.val().boi > top.boi){
-      top = { name:s.key, boi:s.val().boi };
+    // update global
+    try {
+      await set(ref(db, `${TEXT.nodeNameUsers}/${username}`), { boi });
+      // leaderboard will auto-refresh via onValue below
+    } catch(err){
+      console.warn("failed to update global boi:", err);
     }
   });
 
-  document.getElementById("top-player").innerText =
-  `${top.name} - ${top.boi} boi`;
-}
+  // --- LEADERBOARD TOP 10 (real-time) ---
+  const leaderboardDiv = document.getElementById("leaderboardList");
 
-loadLeaderboard();
+  // use onValue to update in real-time
+  onValue(ref(db, TEXT.nodeNameUsers), (snapshot) => {
+    const val = snapshot.val() || {};
+    const arr = [];
+    for(const k in val){
+      const v = val[k] || {};
+      arr.push({ name: k, boi: Number(v.boi || 0) });
+    }
+    // sort desc and take top 10
+    arr.sort((a,b)=> b.boi - a.boi);
+    const top10 = arr.slice(0,10);
 
-const grid = document.getElementById("grid");
-const total = 60;
+    if(top10.length === 0){
+      leaderboardDiv.innerText = TEXT.leaderboardLoading;
+      return;
+    }
 
-const games = [
-{ img:"box-1.png", text:"Clicker", link:"sandbox1.html" },
-{ img:"box-3.png", text:"Meteor", link:"sandbox2.html" }
-];
+    leaderboardDiv.innerHTML = top10.map((u, idx) => {
+      return TEXT.rowFormat(idx+1, u.name, u.boi);
+    }).join("<br>");
+  }, (err) => {
+    console.error("leaderboard onValue error:", err);
+    leaderboardDiv.innerText = "error loading leaderboard";
+  });
 
-for(let i=0;i<total;i++){
-  let g = games[i] || { img:"placeholder.png", text:"Empty", link:"null.mp4" };
-  let div = document.createElement("div");
-  div.className = "card";
-  div.innerHTML = `
-  <a href="${g.link}">
-    <img src="${g.img}">
-    <div>${g.text}</div>
-  </a>`;
-  grid.appendChild(div);
-}
+  // trigger initial load
+  async function loadLeaderboard(){
+    try {
+      const s = await get(ref(db, TEXT.nodeNameUsers));
+      const val = s.val() || {};
+      const arr = [];
+      for(const k in val){ arr.push({ name:k, boi: Number(val[k].boi || 0) }); }
+      arr.sort((a,b)=> b.boi - a.boi);
+      const top10 = arr.slice(0,10);
+      if(top10.length === 0) {
+        leaderboardDiv.innerText = TEXT.leaderboardLoading;
+        return;
+      }
+      leaderboardDiv.innerHTML = top10.map((u, idx) => TEXT.rowFormat(idx+1, u.name, u.boi)).join("<br>");
+    } catch(e){
+      console.warn("loadLeaderboard failed", e);
+      leaderboardDiv.innerText = "error loading leaderboard";
+    }
+  }
+  loadLeaderboard();
+
+  // --- GRID / GAMES ---
+  const grid = document.getElementById("grid");
+  const total = 60; // 2x30
+  const games = [
+    { img:"box-2.png", text:"Clicker", link:"sandbox1.html" },
+    { img:"box-3.png", text:"Meteor", link:"sandbox2.html" }
+  ];
+
+  for(let i=0;i<total;i++){
+    let g;
+    if(i < games.length) {
+      g = games[i];
+    } else if(i === total - 1) {
+      g = { img:"box-0.gif", text: TEXT.testingText, link:"sandbox0.html" };
+    } else {
+      g = { img:"box-1.png", text: TEXT.placeholderText, link:"null.mp4" };
+    }
+
+    const el = document.createElement("div");
+    el.className = "item";
+    el.innerHTML = `<a href="${g.link}"><img src="${g.img}" alt="${g.text}"><div>${g.text}</div></a>`;
+    grid.appendChild(el);
+  }
+
+  // small helper: if local username exists but not in DB (unlikely), try to re-register on load
+  (async function ensureLocalUserOnServer(){
+    if(!usernameLocked) return;
+    try {
+      const s = await get(ref(db, `${TEXT.nodeNameUsers}/${username}`));
+      if(!s.exists()){
+        // register local user to server with current boi
+        await set(ref(db, `${TEXT.nodeNameUsers}/${username}`), { boi });
+      }
+    } catch(e){
+      // ignore
+    }
+  })();
 
 </script>
 
