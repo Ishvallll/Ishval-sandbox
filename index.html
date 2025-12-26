@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>￼Button placeholder ig</title>
+  <title>Button placeholder ig</title>
   <style>
     html, body {
       margin: 0;
@@ -32,7 +32,7 @@
 </head>
 <body>
 
-  <div id="counter">click to uuuhhh udk</div>
+  <div id="counter">click to uuuhhh idk</div>
 
   <img
     id="btn"
@@ -51,6 +51,7 @@
 
     let clicks = 0;
     let pressed = false;
+    let isTouch = false;
 
     function press() {
       if (pressed) return;
@@ -75,14 +76,26 @@
       img.src = "placeholder-unpressed.png";
     }
 
-    // Mouse
-    img.addEventListener("mousedown", press);
-    document.addEventListener("mouseup", release);
-
     // Touch
-    img.addEventListener("touchstart", press);
-    document.addEventListener("touchend", release);
+    img.addEventListener("touchstart", () => {
+      isTouch = true;
+      press();
+    });
+
+    document.addEventListener("touchend", () => {
+      release();
+      setTimeout(() => isTouch = false, 50);
+    });
+
+    // Mouse (ignora se for touch)
+    img.addEventListener("mousedown", () => {
+      if (!isTouch) press();
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (!isTouch) release();
+    });
   </script>
 
 </body>
-  </html>
+</html>
