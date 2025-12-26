@@ -1,203 +1,225 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>Ishval's Sandbox</title>
 
 <style>
-    body {
-        margin: 0;
-        background-color: #0444BC;
-        font-family: Arial, sans-serif;
-        overflow: hidden;
-        color: white;
-    }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #0444BC;
+  color: white;
+  font-family: Arial, sans-serif;
+  overflow-y: scroll;
+}
 
-    /* ===== HEADER ===== */
-    .header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 20px;
-        background: rgba(0,0,0,0.2);
-    }
+header {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  gap: 15px;
+}
 
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
+#ish {
+  width: 64px;
+  height: 64px;
+  animation: spin 4s linear infinite;
+  cursor: pointer;
+}
 
-    .header-left img {
-        width: 48px;
-        height: 48px;
-        animation: spin 6s linear infinite;
-        cursor: pointer;
-    }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
+#title {
+  font-size: 28px;
+}
 
-    .title {
-        font-size: 26px;
-        font-weight: bold;
-    }
+#desc {
+  font-size: 14px;
+  opacity: 0.8;
+}
 
-    .desc {
-        font-size: 14px;
-        opacity: 0.8;
-    }
+#top-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    .boi-counter {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 18px;
-        font-weight: bold;
-    }
+#boi-img {
+  width: 32px;
+}
 
-    .boi-counter img {
-        width: 32px;
-        height: 32px;
-    }
+#grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 80px 20px 200px;
+}
 
-    /* ===== GRID ===== */
-    .scroll-container {
-        height: calc(100vh - 90px);
-        overflow-y: auto;
-        padding: 20px;
-        box-sizing: border-box;
-    }
+.card {
+  background: rgba(0,0,0,0.2);
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+}
 
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
+.card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+}
 
-    .item {
-        background: rgba(255,255,255,0.12);
-        border-radius: 14px;
-        padding: 14px;
-        text-align: center;
-        transition: transform 0.2s, background 0.2s;
-        min-height: 200px; /* evita achatamento */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+#username-box {
+  margin: 10px 20px;
+}
 
-    .item:hover {
-        transform: scale(1.05);
-        background: rgba(255,255,255,0.22);
-    }
+input, button {
+  padding: 6px;
+}
 
-    .item a {
-        color: white;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 18px;
-        width: 100%;
-    }
-
-    .item img {
-        width: 100%;
-        max-height: 130px;
-        object-fit: contain;
-        margin-bottom: 10px;
-    }
+#leaderboard {
+  padding: 20px;
+  font-size: 14px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-    <div class="header-left">
-        <img src="ish.png" id="ish">
-        <div>
-            <div class="title">Ishval's Sandbox</div>
-            <div class="desc" id="desc"></div>
-        </div>
-    </div>
+<header>
+  <img src="ish.png" id="ish">
+  <div>
+    <div id="title">Ishval's Sandbox</div>
+    <div id="desc"></div>
+  </div>
 
-    <div class="boi-counter">
-        <img src="boi.png">
-        <span id="boiCount">0</span>
-    </div>
+  <div id="top-right">
+    <img src="boi.png" id="boi-img">
+    <span id="boi-count">0</span>
+  </div>
+</header>
+
+<div id="username-box">
+  <input id="username" placeholder="username">
+  <button onclick="confirmName()">Confirm</button>
+  <span id="name-status"></span>
 </div>
 
-<div class="scroll-container">
-    <div class="grid">
-
-        <!-- ITEM 1 -->
-        <div class="item">
-            <a href="sandbox1.html">
-                <img src="box-2.png">
-                Clicker
-            </a>
-        </div>
-
-        <!-- ITEM 2 -->
-        <div class="item">
-            <a href="sandbox2.html">
-                <img src="box-3.png">
-                Meteor
-            </a>
-        </div>
-
-        <!-- PLACEHOLDERS (auto 57x) -->
-        <script>
-            for (let i = 0; i < 57; i++) {
-                document.write(`
-                <div class="item">
-                    <a href="null.mp4">
-                        <img src="box-1.png">
-                        placeholder
-                    </a>
-                </div>
-                `);
-            }
-        </script>
-
-        <!-- ITEM 60 -->
-        <div class="item">
-            <a href="sandbox0.html">
-                <img src="box-0.gif">
-                Testing
-            </a>
-        </div>
-
-    </div>
+<div id="leaderboard">
+  <b>Global Leaderboard</b>
+  <div id="top-player">Loading...</div>
 </div>
 
-<script>
-    /* ===== DESCRIÇÃO ALEATÓRIA ===== */
-    const descs = [
-        "only seals poop here ig",
-        "cool place ngl",
-        "my house ig",
-        "btw, i don't like u @seal_enjoyer_de",
-        "pootis",
-        "caseoh for some reason like balls '-'",
-        "yeah yeah, no one knows what is the first 2 letters if **pe :trollface:",
-        "wall of shame: @seal_enjoyer_de"
-    ];
+<div id="grid"></div>
 
-    document.getElementById("desc").innerText =
-        descs[Math.floor(Math.random() * descs.length)];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, set, get, update, child } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    /* ===== BOI SYSTEM ===== */
-    let boi = Number(localStorage.getItem("boi") || 0);
-    const boiText = document.getElementById("boiCount");
-    boiText.innerText = boi;
+const firebaseConfig = {
+  apiKey: "AIzaSyC2CvdIZjn7afps9tRiqKrPailDocBDPsc",
+  authDomain: "global-boi.firebaseapp.com",
+  databaseURL: "https://global-boi-default-rtdb.firebaseio.com",
+  projectId: "global-boi",
+  storageBucket: "global-boi.firebasestorage.app",
+  messagingSenderId: "777647816380",
+  appId: "1:777647816380:web:cb38c43b31e1297ac3dab9"
+};
 
-    document.getElementById("ish").onclick = () => {
-        boi++;
-        localStorage.setItem("boi", boi);
-        boiText.innerText = boi;
-    };
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let boi = Number(localStorage.getItem("boi") || 0);
+let username = localStorage.getItem("username") || "";
+
+const descs = [
+"only seals poop here ig",
+"cool place ngl",
+"my house ig",
+"btw, i don't like u @seal_enjoyer_de",
+"pootis",
+"caseoh for some reason like balls '-'",
+"yeah yeah, no one knows what is the first 2 letters if **pe :trollface:",
+"wall of shame: @seal_enjoyer_de"
+];
+
+document.getElementById("desc").innerText =
+descs[Math.floor(Math.random()*descs.length)];
+
+document.getElementById("boi-count").innerText = boi;
+
+document.getElementById("ish").onclick = () => {
+  boi++;
+  saveBoi();
+};
+
+function saveBoi(){
+  localStorage.setItem("boi", boi);
+  document.getElementById("boi-count").innerText = boi;
+  if(username){
+    set(ref(db, "users/"+username), { boi });
+  }
+}
+
+window.confirmName = async () => {
+  const name = document.getElementById("username").value.trim();
+  if(!name) return;
+
+  const snap = await get(ref(db, "users/"+name));
+  if(snap.exists()){
+    document.getElementById("name-status").innerText = "Taken ❌";
+    return;
+  }
+
+  username = name;
+  localStorage.setItem("username", name);
+  set(ref(db, "users/"+name), { boi });
+  document.getElementById("name-status").innerText = "OK ✅";
+};
+
+async function loadLeaderboard(){
+  const snap = await get(ref(db, "users"));
+  let top = { name:"none", boi:0 };
+
+  snap.forEach(s=>{
+    if(s.val().boi > top.boi){
+      top = { name:s.key, boi:s.val().boi };
+    }
+  });
+
+  document.getElementById("top-player").innerText =
+  `${top.name} - ${top.boi} boi`;
+}
+
+loadLeaderboard();
+
+const grid = document.getElementById("grid");
+const total = 60;
+
+const games = [
+{ img:"box-1.png", text:"Clicker", link:"sandbox1.html" },
+{ img:"box-3.png", text:"Meteor", link:"sandbox2.html" }
+];
+
+for(let i=0;i<total;i++){
+  let g = games[i] || { img:"placeholder.png", text:"Empty", link:"null.mp4" };
+  let div = document.createElement("div");
+  div.className = "card";
+  div.innerHTML = `
+  <a href="${g.link}">
+    <img src="${g.img}">
+    <div>${g.text}</div>
+  </a>`;
+  grid.appendChild(div);
+}
+
 </script>
 
 </body>
